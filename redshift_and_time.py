@@ -9,11 +9,11 @@ import os
 import yt
 import ytree
 import numpy as np
+from file_locations import *
 
 # Load datasets and arbor
-datadir = '/home/jwise/runs/SG64-2020/SG64-L2'
-ts = yt.load('%s/DD????/output_????' % (datadir))
-a = ytree.load('%s/rockstar_halos/trees/tree_0_0_0.dat' % (datadir))
+ts = yt.load(param_files)
+a = ytree.load(tree_file)
 
 # Determine number of datasets.
 N = len(ts)
@@ -23,10 +23,11 @@ N = len(ts)
 maxN = -1
 ref_halo = None
 for root_halo in a:
-    if root_halo['prog', 'id'].size > maxN:
-        maxN = root_halo['prog', 'id'].size
+    if len(list(root_halo['prog'])) > maxN:
+        maxN = len(list(root_halo['prog']))
         ref_halo = root_halo
 print("Storing %d of %d redshifts that have halo data" % (maxN, N))
+N0 = N
 N = maxN
 
 # There are slight discrepancies between redshifts stored in the datasets and
@@ -38,16 +39,17 @@ cosmological_times = np.zeros(N)
 # Loop through each dataset and halo in the progenitor line to save redshifts
 # and cosmological time.
 # Reverse order of progenitor line to go in increasing time.
-for i, ds in enumerate(ts[-N:]):
-    ytree_redshifts[i] = ref_halo['prog', 'redshift'][-i]
+start = N0-N
+for i, ds in enumerate(ts[start:]):
+    ytree_redshifts[i] = ref_halo['prog', 'redshift'][-(i+1)]
     ds_redshifts[i] = ds.current_redshift
     cosmological_times[i] = ds.current_time.to('yr')
 
 # Save all arrays to directory for later use.
-if not os.path.exists('stored_arrays'):
-    os.mkdir('stored_arrays')
-np.save('stored_arrays/ytree_redshifts', ytree_redshifts)
-np.save('stored_arrays/ds_redshifts', ds_redshifts)
-np.save('stored_arrays/cosmological_times', cosmological_times)
+if not os.path.exists(storage_dir):
+    os.mkdir(storage_dir)
+np.save('%s/ytree_redshifts' % (storage_dir), ytree_redshifts)
+np.save('%s/ds_redshifts' % (storage_dir), ds_redshifts)
+np.save('%s/cosmological_times' % (storage_dir), cosmological_times)
 
 

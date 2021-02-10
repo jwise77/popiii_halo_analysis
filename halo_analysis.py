@@ -434,7 +434,9 @@ def central_density_and_H2(ds, halo, inner_rad=5.):
     
     # Set inner radius: region within which is considered the central portion of the halo.
     # Must be a yt quantity tied to the dataset.
-    inner_rad = ds.quan(inner_rad, 'pc')
+    # Cannot be smaller than finest cell width
+    if not isinstance(inner_rad, yt.YTQuantity):
+        inner_rad = ds.quan(inner_rad, 'pc')
     
     # Set the position of the halo.
     pos = ds.arr([halo['position_x'], halo['position_y'],
@@ -466,12 +468,12 @@ def specific_growth_rate(halo):
     
     # Check length of halo's progenitor line.
     # It must be greater than 1 to have a well-defined growth rate.
-    if len(halo['prog']) > 1:
+    if len(list(halo['prog'])) > 1:
         # Set cosmological time and mass for halo currently.
         current_time = halo['cosmological_time']
         current_mass = halo['sphere_mass'].v
         # Set cosmological time and mass for halo's most massive progenitor.
-        ancestor = halo['prog'][1]
+        ancestor = list(halo['prog'])[1]
         previous_time = ancestor['cosmological_time']
         ancestor_mass = ancestor['sphere_mass'].v
 
@@ -499,10 +501,10 @@ def mass_growth_derivative(halo):
     '''
     # Check length of halo's progenitor line.
     # It must be greater than 2 for the growth rate to have a well-defined derivative.
-    if len(halo['prog']) > 2:
+    if len(list(halo['prog'])) > 2:
         # Assign previous two ancestors in line of most massive progenitors.
-        ancestor1 = halo['prog'][1]
-        ancestor2 = halo['prog'][2]
+        ancestor1 = list(halo['prog'])[1]
+        ancestor2 = list(halo['prog'])[2]
         # Cosmological time and mass of halo currently
         t0 = halo['cosmological_time']
         m0 = halo['sphere_mass'].v
