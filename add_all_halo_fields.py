@@ -4,6 +4,7 @@ import numpy as np
 from yt.utilities.physical_constants import planck_constant_cgs
 import halo_analysis as ha
 from file_locations import *
+yt.enable_parallelism()
 
 # Add J21_LW and J_Lyman fields to yt
 sigma_H2I = yt.YTQuantity(3.71e-18, 'cm**2')
@@ -155,6 +156,12 @@ for i, redshift in enumerate(ytree_redshifts):
         ha.masses_and_metallicities(ds, sph, halo=halo, is_half=True)
         ha.inflow_outflow(ds, sph, pos, half_rad, halo=halo, is_half=True)
         ha.radiation(ds, sph, halo=halo, is_half=True)
+        # for f in a.field_list:
+        #     print(f, halo[f])
+        # import pdb; pdb.set_trace()
+        # break
 
     # Save arbor with updated field values.
-    a.save_arbor(filename=full_arbor_file)
+    # JHW note (12 Feb 2021): The looping needs to be changed, so that the tree objects can be given to save_arbor to save the analysis fields. See https://ytree.readthedocs.io/en/latest/Fields.html#id3
+    a.save_arbor(trees=a[:], filename=full_arbor_file)
+    # break

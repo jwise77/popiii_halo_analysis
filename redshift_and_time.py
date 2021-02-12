@@ -28,7 +28,7 @@ for root_halo in a:
         ref_halo = root_halo
 print("Storing %d of %d redshifts that have halo data" % (maxN, N))
 N0 = N
-N = maxN
+N = min(N, maxN)
 
 # There are slight discrepancies between redshifts stored in the datasets and
 # redshifts in the saved ytree arbor so save those as separate arrays.
@@ -41,7 +41,7 @@ cosmological_times = np.zeros(N)
 # Reverse order of progenitor line to go in increasing time.
 start = N0-N
 for i, ds in enumerate(ts[start:]):
-    ytree_redshifts[i] = ref_halo['prog', 'redshift'][-(i+1)]
+    ytree_redshifts[-(i+1)] = ref_halo['prog', 'redshift'][i]
     ds_redshifts[i] = ds.current_redshift
     cosmological_times[i] = ds.current_time.to('yr')
 

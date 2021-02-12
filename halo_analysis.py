@@ -447,7 +447,7 @@ def central_density_and_H2(ds, halo, inner_rad=5.):
     
     # Calculate the mean density and H2 fraction of the sphere.
     central_density = sph.quantities.weighted_average_quantity('density', 'cell_volume')
-    central_H2_fraction = sph.quantities.weighted_average_quantity('H2_fraction', 'cell_mass')
+    central_H2_fraction = sph.quantities.weighted_average_quantity('H2_p0_fraction', 'cell_mass')
 
     return central_density, central_H2_fraction
 
